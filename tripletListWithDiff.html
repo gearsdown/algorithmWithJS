@@ -1,0 +1,133 @@
+<script>
+// given a set of positive and negative numbers eg [+4, +5, +3, +4, +6, -4]
+// return each triple numbers which have different by the parameter given
+// example
+// for data [+4, +5, +3, +4, +6, -4] with diff  = 1
+// it should return [0, 0, 1, 2, 4, 0]
+// for the first number, the numbers collected is only 1, so it returns 
+//		[0], since its only 1 number
+// for the second number, the numbers collected is only 2, so it returns 
+//		[0, 0]
+// for the third number, the numbers collected is 3, so we can make a triplets, it returns 
+// 		[0, 0, 1]
+// since +4 +5 +3  if sorted, its all have 1 difference between the iteration 
+// for the fourth number, it is more than 3 numbers collected, it returns 
+// 		[0, 0, 1, 2]
+// since +4 +5 +3 +4  if sorted, its all have 1 difference between the iteration and also since it have more than 1 evidnce, it can add 1 more triplets so it return 2
+// for the fifth number, it is more than 3 numbers collected, it returns 
+// 		[0, 0, 1, 2, 4]
+// since +4 +5 +3 +4  if sorted, its all have 1 difference between the iteration and also since it have more than 1 evidence (+4), we can make 2 [3,4,5] and 2 [4,5,6], so it return 4
+// the last number is negative (-4), so we have to remove the numbers (+4) and it remains [+5, +3, +6], it returns
+// 		[0, 0, 1, 2, 4, 0]
+// since we can make any triplets with diff given
+function queries(arr, diff)
+{
+	var result = [];
+	var temp = [];
+	var evidence = [];
+	if(arr.length == 3)
+	{
+		arr.sort();
+		if(arr[2] - arr[1] != diff || arr[1] - arr[0] != diff){
+			return [0,0,0];
+		}
+		return [0,0,1];
+	}
+	for(let i = 0; i < arr.length; i++)
+	{
+		if(arr[i] < 0){
+			for(let j = 0; j < temp.length; j++){
+				if(temp[j] + arr[i] == 0){
+					temp.splice(j, 1);
+					j = 0;
+				}
+			}
+		}
+		else{
+			if(temp.includes(arr[i])){
+				if(evidence[arr[i]]){
+					evidence[arr[i]] = evidence[arr[i]] + 1;
+				}
+				else{
+					evidence[arr[i]] = 2;
+				}
+			}
+			else{
+				evidence[arr[i]] = 1;
+			}
+			temp.push(arr[i]);
+		}
+		if( i < 2 ){
+			result.push(0);
+		}
+		else {
+			result.push(bfs(temp, diff));
+
+		}
+		console.log(temp);
+	}
+	return result;
+}
+//console.log(queries([+4, +5, +3], 2));
+console.log(queries([+2, +4, +6, 0, +6, -4], 2));
+
+function bfs(arr, diff)
+{
+	arr.sort();
+	var num = [];
+	var total = 0;
+	var m1= 1,m2 = 1,m3 = 1;
+	var state = 0;
+	var nextInt = 0;
+	for(i = 0; i < arr.length; i++)
+	{
+		num.push(arr[i]);
+		for(j = i+1 ; j < arr.length; j++)
+		{
+			if(arr[j] == arr[i]){
+				m1++;
+			}
+			else if(arr[j] - arr[i] == diff){
+				num.push(arr[j])
+				if(num.length == 2){
+					state = j;
+				}
+				for(k = j + 1; k < arr.length; k++){
+					if(arr[k] == arr[j]){
+						m2++;
+					}
+					else if(arr[k] - arr[j] == diff){
+						num.push(arr[j])
+						for(l = k + 1; l < arr.length; l++){
+							if(arr[k] == arr[l]){
+								m3++;
+							}else{
+								break;
+							}
+						}
+						if(num.length == 3){
+							total = total + m1 * m2* m3;
+							i = state - 1;
+							m1 = 1;
+							m2 = 1; 
+							m3 = 1;
+							num = [];
+							break;
+						}
+					}
+					else {
+						i = state - 1;
+						break;
+					}
+				}
+			}
+			if( num.length == 0){
+				break;
+			}
+		}
+	}
+	return total;
+}
+
+// console.log(bfs([+4, +5, +3, +4, +6], 1));
+</script>
